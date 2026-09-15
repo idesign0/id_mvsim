@@ -28,6 +28,11 @@ source_group(ProtobufMessages FILES
 set(PACKAGE_DEPENDENCIES "")
 mvsim_common_target_settings(${MODULE_NAME})
 
+# Link protobuf runtime: this module compiles the generated .pb.cc into a shared lib, so
+# on macOS (no lazy/indirect symbol resolution) it must link libprotobuf itself, else
+# undefined typeinfo/ZeroFieldsBase at libmvsim-msgs link. (comms module already links it.)
+target_link_libraries(${PROJECT_NAME} ${Protobuf_LIBRARIES})
+
 if (MVSIM_WITH_PROTOBUF)
 
 	# Make a copy of headers so they appear under the same local
