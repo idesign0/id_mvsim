@@ -7,6 +7,13 @@
   |   See COPYING                                                           |
   +-------------------------------------------------------------------------+ */
 
+// NOTE: protobuf's Descriptor::full_name() returns std::string_view in newer protobuf (it used to
+// return const std::string&), so .c_str() no longer exists:
+//   Client.cpp:409:27: error: no member named 'c_str' in 'std::string_view'
+// These are printf-style MRPT_LOG_*_FMT macros, which need a null-terminated char*, and a
+// string_view carries no such guarantee -- so materialise a std::string. The temporary lives to the
+// end of the full expression, which covers the macro call.
+#include <string>
 #include <mrpt/core/exceptions.h>
 #include <mrpt/core/lock_helper.h>
 #include <mrpt/system/thread_name.h>
@@ -406,7 +413,7 @@ void Client::doAdvertiseTopic(
 
 	MRPT_LOG_DEBUG_FMT(
 		"Advertising topic `%s` [%s] on endpoint `%s`", topicName.c_str(),
-		descriptor->full_name().c_str(), ipat.endpoint.c_str());
+		std::string(descriptor->full_name()).c_str(), ipat.endpoint.c_str());
 
 	// MRPT_LOG_INFO_STREAM("Type: " << descriptor->DebugString());
 
@@ -468,7 +475,7 @@ void Client::doAdvertiseService(
 
 	MRPT_LOG_DEBUG_FMT(
 		"Advertising service `%s` [%s->%s] on endpoint `%s`", serviceName.c_str(),
-		descIn->full_name().c_str(), descOut->full_name().c_str(), assignedPort.c_str());
+		std::string(descIn->full_name()).c_str(), std::string(descOut->full_name()).c_str(), assignedPort.c_str());
 
 	mvsim_msgs::AdvertiseServiceRequest req;
 	req.set_servicename(ips.serviceName);
