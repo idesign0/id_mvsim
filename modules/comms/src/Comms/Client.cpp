@@ -532,8 +532,8 @@ void Client::publishTopic(const std::string& topicName, const google::protobuf::
 		mrpt::format(
 			"Topic `%s` has type `%s`, but expected `%s` from former call to "
 			"advertiseTopic()?",
-			topicName.c_str(), msg.GetDescriptor()->name().c_str(),
-			ipat.descriptor->name().c_str()));
+			topicName.c_str(), std::string(msg.GetDescriptor()->name()).c_str(),
+			std::string(ipat.descriptor->name()).c_str()));
 
 #if CPPZMQ_VERSION >= ZMQ_MAKE_VERSION(4, 7, 1)
 	ASSERT_(ipat.pubSocket);
