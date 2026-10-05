@@ -64,7 +64,9 @@ variant_t recursiveParse(const std::string& typeName, const std::string& seriali
 	{
 		using this_t = std::variant_alternative_t<IDX, variant_t>;
 		this_t v;
-		const std::string expectedName = v.GetTypeName();
+		// GetTypeName() returns absl::string_view (std::string_view) in protobuf >= 4.26,
+		// and string's string_view constructor is explicit, so copy-init is ill-formed.
+		const std::string expectedName{v.GetTypeName()};
 		if (expectedName == typeName)
 		{
 			bool ok = v.ParseFromString(serializedData);
